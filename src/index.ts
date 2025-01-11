@@ -80,7 +80,13 @@ const addDepartment = async () => {
     {
       type: 'input',
       name: 'name',
-      message: 'Enter the name of the department:'
+      message: 'Enter the name of the department:',
+      validate: (input) => {
+        if (/^[a-zA-Z\s]+$/.test(input)) {
+          return true;
+        }
+        return 'Department name is not valid.';
+      }
     }
   ]);
 
@@ -90,51 +96,96 @@ const addDepartment = async () => {
 
 // function to add a role
 const addRole = async () => {
+  const departments: QueryResult = await pool.query('SELECT id, name FROM department');
+  const departmentChoices = departments.rows.map(department => ({
+    name: department.name,
+    value: department.id
+  }));
+
   const answers = await inquirer.prompt([
     {
       type: 'input',
       name: 'title',
-      message: 'Enter the title of the role:'
+      message: 'Enter the title of the role:',
+      validate: (input) => {
+        if (/^[a-zA-Z\s]+$/.test(input)) {
+          return true;
+        }
+        return 'Title is not valid.';
+      }
     },
     {
       type: 'input',
       name: 'salary',
-      message: 'Enter the salary of the role:'
+      message: 'Enter the salary of the role:',
+      validate: (input) => {
+        if (/^[0-9]+$/.test(input)) {
+          return true;
+        }
+        return 'Salary is not valid.';
+      }
     },
     {
-      type: 'input',
+      type: 'list',
       name: 'department_id',
-      message: 'Enter the department ID of the role:'
+      message: 'Which department does the role belong in?',
+      choices: departmentChoices
     }
   ]);
 
-  await pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [answers.title, answers.salary, answers.department_id]);
+  await pool.query('INSERT INTO role (title, salary, department) VALUES ($1, $2, $3)', [answers.title, answers.salary, answers.department_id]);
   console.log(`Added role: ${answers.title}`);
 };
 
 // function to add an employee
 const addEmployee = async () => {
+  const roles: QueryResult = await pool.query('SELECT id, title FROM role');
+  const roleChoices = roles.rows.map(role => ({
+    name: role.title,
+    value: role.id
+  }));
+
+  const managers: QueryResult = await pool.query('SELECT id, first_name, last_name FROM employee');
+  const managerChoices = managers.rows.map(manager => ({
+    name: `${manager.first_name} ${manager.last_name}`,
+    value: manager.id
+  }));
+
   const answers = await inquirer.prompt([
     {
       type: 'input',
       name: 'first_name',
-      message: 'Enter the first name of the employee:'
+      message: 'Enter the first name of the employee:',
+      validate: (input) => {
+        if (/^[a-zA-Z\s]+$/.test(input)) {
+          return true;
+        }
+        return 'First name is not valid.';
+      }
     },
     {
       type: 'input',
       name: 'last_name',
-      message: 'Enter the last name of the employee:'
+      message: 'Enter the last name of the employee:',
+      validate: (input) => {
+        if (/^[a-zA-Z\s]+$/.test(input)) {
+          return true;
+        }
+        return 'Last name is not valid.';
+      }
     },
     {
-      type: 'input',
+      type: 'list',
       name: 'role_id',
-      message: 'Enter the role ID of the employee:'
+      message: 'Select the employee\'s role:',
+      choices: roleChoices
     },
     {
-      type: 'input',
+      type: 'list',
       name: 'manager_id',
-      message: 'Enter the manager ID of the employee (leave blank if none):'
-    }
+      message: 'Select the employee\'s manager:',
+      choices: managerChoices
+    },
   ]);
 
   await pool.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [answers.first_name, answers.last_name, answers.role_id, answers.manager_id || null]);
@@ -143,22 +194,51 @@ const addEmployee = async () => {
 
 // function to update an employee role
 const updateEmployeeRole = async () => {
+  const roles: QueryResult = await pool.query('SELECT id, title FROM role');
+  const roleChoices = roles.rows.map(role => ({
+    name: role.title,
+    value: role.id
+  }));
+
+  const employees: QueryResult = await pool.query('SELECT id, first_name, last_name FROM employee');
+  const employeeChoices = employees.rows.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id
+  }));
+
   const answers = await inquirer.prompt([
     {
-      type: 'input',
+      type: 'list',
       name: 'employee_id',
-      message: 'Enter the ID of the employee you want to update:'
+      message: 'Select the employee you want to update:',
+      choices: employeeChoices
     },
     {
-      type: 'input',
+      type: 'list',
       name: 'role_id',
-      message: 'Enter the new role ID of the employee:'
+      message: 'Select the new role for the employee:',
+      choices: roleChoices
     }
   ]);
 
   await pool.query('UPDATE employee SET role_id = $1 WHERE id = $2', [answers.role_id, answers.employee_id]);
-  console.log(`Updated employee ID ${answers.employee_id} with new role ID ${answers.role_id}`);
+  console.log(`Updated employee\'s role.`);
 };
+
+// function to update employee managers
+
+// function to view employees by manager
+
+// function to view employees by department
+
+// function to delete departments
+
+// function to delete roles
+
+// function to delete employees
+
+// function to view the total utilized budget of a department (combined salaries of all employees in that department)
+
 
 // call the main menu function to start the program
 mainMenu();
