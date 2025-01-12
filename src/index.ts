@@ -19,7 +19,8 @@ const mainMenu = async () => {
         'Add a department',
         'Add a role',
         'Add an employee',
-        'Update an employee role',
+        'Update an employee\'s role',
+        'Update an employee\'s manager',
         'Exit'
       ]
     }
@@ -45,8 +46,11 @@ const mainMenu = async () => {
     case 'Add an employee':
       await addEmployee();
       break;
-    case 'Update an employee role':
+    case 'Update an employee\'s role':
       await updateEmployeeRole();
+      break;
+    case 'Update an employee\'s manager':
+      await updateEmployeeManager();
       break;
     case 'Exit':
       console.log('Goodbye!');
@@ -226,6 +230,37 @@ const updateEmployeeRole = async () => {
 };
 
 // function to update employee managers
+const updateEmployeeManager = async () => {
+  const employees: QueryResult = await pool.query('SELECT id, first_name, last_name FROM employee');
+  const employeeChoices = employees.rows.map(employee => ({
+    name: `${employee.first_name} ${employee.last_name}`,
+    value: employee.id
+  }));
+
+  const managers: QueryResult = await pool.query('SELECT id, first_name, last_name FROM employee');
+  const managerChoices = managers.rows.map(manager => ({
+    name: `${manager.first_name} ${manager.last_name}`,
+    value: manager.id
+  }));
+
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employee_id',
+      message: 'Select the employee you want to update:',
+      choices: employeeChoices
+    },
+    {
+      type: 'list',
+      name: 'manager_id',
+      message: 'Select the new manager for the employee:',
+      choices: managerChoices
+    }
+  ]);
+
+  await pool.query('UPDATE employee SET manager_id = $1 WHERE id = $2', [answers.manager_id, answers.employee_id]);
+  console.log(`Updated employee\'s manager.`);
+}
 
 // function to view employees by manager
 
