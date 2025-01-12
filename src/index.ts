@@ -21,6 +21,7 @@ const mainMenu = async () => {
         'Add an employee',
         'Update an employee\'s role',
         'Update an employee\'s manager',
+        'View employees by manager',
         'Exit'
       ]
     }
@@ -51,6 +52,9 @@ const mainMenu = async () => {
       break;
     case 'Update an employee\'s manager':
       await updateEmployeeManager();
+      break;
+    case 'View employees by manager':
+      await viewEmployeesByManager();
       break;
     case 'Exit':
       console.log('Goodbye!');
@@ -260,9 +264,28 @@ const updateEmployeeManager = async () => {
 
   await pool.query('UPDATE employee SET manager_id = $1 WHERE id = $2', [answers.manager_id, answers.employee_id]);
   console.log(`Updated employee\'s manager.`);
-}
+};
 
 // function to view employees by manager
+const viewEmployeesByManager = async () => {
+  const managers: QueryResult = await pool.query('SELECT id, first_name, last_name FROM employee');
+  const managerChoices = managers.rows.map(manager => ({
+    name: `${manager.first_name} ${manager.last_name}`,
+    value: manager.id
+  }));
+
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'manager_id',
+      message: 'Select the manager to view employees:',
+      choices: managerChoices
+    }
+  ]);
+
+  const result: QueryResult = await pool.query('SELECT * FROM employee WHERE manager_id = $1', [answers.manager_id]);
+  console.table(result.rows, ['first_name', 'last_name']);
+};
 
 // function to view employees by department
 
