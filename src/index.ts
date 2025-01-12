@@ -22,6 +22,7 @@ const mainMenu = async () => {
         'Update an employee\'s role',
         'Update an employee\'s manager',
         'View employees by manager',
+        'View employees by department',
         'Exit'
       ]
     }
@@ -55,6 +56,9 @@ const mainMenu = async () => {
       break;
     case 'View employees by manager':
       await viewEmployeesByManager();
+      break;
+    case 'View employees by department':
+      await viewEmployeesByDepartment();
       break;
     case 'Exit':
       console.log('Goodbye!');
@@ -288,6 +292,25 @@ const viewEmployeesByManager = async () => {
 };
 
 // function to view employees by department
+const viewEmployeesByDepartment = async () => {
+  const departments: QueryResult = await pool.query('SELECT id, name FROM department');
+  const departmentChoices = departments.rows.map(department => ({
+    name: department.name,
+    value: department.id
+  }));
+
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'department_id',
+      message: 'Select a department to view employees:',
+      choices: departmentChoices
+    }
+  ]);
+
+  const result: QueryResult = await pool.query('SELECT * FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department = department.id WHERE department = $1', [answers.department_id]);
+  console.table(result.rows, ['first_name', 'last_name']);
+};
 
 // function to delete departments
 
