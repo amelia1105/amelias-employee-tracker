@@ -2,6 +2,7 @@
 import inquirer from 'inquirer';
 import { QueryResult } from 'pg';
 import { pool, connectToDb } from './connection.js';
+import Table from 'cli-table3';
 
 await connectToDb();
 
@@ -78,21 +79,93 @@ const mainMenu = async () => {
 
 // function to view all departments
 const viewAllDepartments = async () => {
-  const result: QueryResult = await pool.query('SELECT * FROM department');
-  console.table(result.rows);
+  try {
+    const result: QueryResult = await pool.query('SELECT id, name FROM department');
+
+    // headers for the table
+    const headers = ['ID', 'Name'];
+
+    // table instance with rows
+    const table = new Table({ head: headers });
+    result.rows.forEach(({ id, name }) => {
+      table.push([id, name]);
+    });
+
+    // display the table
+    console.log(table.toString());
+  } catch (error) {
+    console.error('Error fetching departments');
+  }
 };
 
 // function to view all roles
 const viewAllRoles = async () => {
-  const result: QueryResult = await pool.query('SELECT * FROM role');
-  console.table(result.rows);
+  try {
+    // Join the role table with the department table to get the department name
+    const result: QueryResult = await pool.query(`
+      SELECT 
+        r.id, 
+        r.title, 
+        r.salary, 
+        d.name AS department
+      FROM role r
+      LEFT JOIN department d ON r.department = d.id
+    `);
+    
+    // Define headers for the table
+    const headers = ['ID', 'Title', 'Salary', 'Department'];
+
+    // Create a table instance and add rows
+    const table = new Table({ head: headers });
+    result.rows.forEach(({ id, title, salary, department }) => {
+      table.push([id, title, salary, department]);
+    });
+
+    // Display the table
+    console.log(table.toString());
+  } catch (error) {
+    console.error('Error fetching roles');
+  }
 };
 
 // function to view all employees
 const viewAllEmployees = async () => {
-  const result: QueryResult = await pool.query('SELECT * FROM employee');
-  console.table(result.rows);
+  try {
+    // Join the employee table with the role and department tables to get the department name and salary
+    const result: QueryResult = await pool.query(`
+      SELECT 
+        e.id, 
+        e.first_name, 
+        e.last_name, 
+        r.title AS role, 
+        r.salary, 
+        d.name AS department,
+        m.first_name AS manager_first_name,
+        m.last_name AS manager_last_name
+      FROM employee e
+      LEFT JOIN role r ON e.role_id = r.id
+      LEFT JOIN department d ON r.department = d.id
+      LEFT JOIN employee m ON e.manager_id = m.id
+    `);
+    
+    // Define headers for the table
+    const headers = ['ID', 'First Name', 'Last Name', 'Role', 'Salary', 'Department', 'Manager'];
+
+    // Create a table instance and add rows
+    const table = new Table({ head: headers });
+    result.rows.forEach(({ id, first_name, last_name, role, salary, department, manager_first_name, manager_last_name }) => {
+      const managerName = manager_first_name && manager_last_name ? `${manager_first_name} ${manager_last_name}` : 'None';
+      table.push([id, first_name, last_name, role, salary, department, managerName]);
+    });
+
+    // Display the table
+    console.log(table.toString());
+  } catch (error) {
+    console.error('Error fetching employees');
+  }
 };
+
+
 
 // function to add a department
 const addDepartment = async () => {
