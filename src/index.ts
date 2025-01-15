@@ -23,6 +23,8 @@ const mainMenu = async () => {
         'Update an employee\'s manager',
         'View employees by manager',
         'View employees by department',
+        'View roles by department',
+        'View department budget',
         'Exit'
       ]
     }
@@ -59,6 +61,12 @@ const mainMenu = async () => {
       break;
     case 'View employees by department':
       await viewEmployeesByDepartment();
+      break;
+    case 'View roles by department':
+      await viewRolesByDepartment();
+      break;
+    case 'View department budget':
+      await viewDepartmentBudget();
       break;
     case 'Exit':
       console.log('Goodbye!');
@@ -312,14 +320,47 @@ const viewEmployeesByDepartment = async () => {
   console.table(result.rows, ['first_name', 'last_name']);
 };
 
-// function to delete departments
+// view roles in a department. Not a bonus nor part of the graded criteria, but it helped me understand how to figure out the budget.
+const viewRolesByDepartment = async () => {
+  const departments: QueryResult = await pool.query('SELECT id, name FROM department');
+  const departmentChoices = departments.rows.map(department => ({
+    name: department.name,
+    value: department.id
+  }));
 
-// function to delete roles
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'department_id',
+      message: 'Select a department to view roles:',
+      choices: departmentChoices
+    }
+  ]);
 
-// function to delete employees
+  const result: QueryResult = await pool.query('SELECT * FROM role WHERE department = $1', [answers.department_id]);
+  console.table(result.rows);
+};
 
 // function to view the total utilized budget of a department (combined salaries of all employees in that department)
+const viewDepartmentBudget = async () => {
+  const departments: QueryResult = await pool.query('SELECT id, name FROM department');
+  const departmentChoices = departments.rows.map(department => ({
+    name: department.name,
+    value: department.id
+  }));
 
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'department_id',
+      message: 'Select a department to view the total utilized budget:',
+      choices: departmentChoices
+    }
+  ]);
+
+  const result: QueryResult = await pool.query('SELECT SUM(salary) FROM role WHERE department = $1', [answers.department_id]);
+  console.log(`Total utilized budget for department: ${result.rows[0].sum}`);
+};
 
 // call the main menu function to start the program
 mainMenu();
