@@ -101,7 +101,7 @@ const viewAllDepartments = async () => {
 // function to view all roles
 const viewAllRoles = async () => {
   try {
-    // Join the role table with the department table to get the department name
+    // join role table with department table to get the department name
     const result: QueryResult = await pool.query(`
       SELECT 
         r.id, 
@@ -112,16 +112,16 @@ const viewAllRoles = async () => {
       LEFT JOIN department d ON r.department = d.id
     `);
     
-    // Define headers for the table
+    // headers for the table
     const headers = ['ID', 'Title', 'Salary', 'Department'];
 
-    // Create a table instance and add rows
+    // table instance with rows
     const table = new Table({ head: headers });
     result.rows.forEach(({ id, title, salary, department }) => {
       table.push([id, title, salary, department]);
     });
 
-    // Display the table
+    // display the table
     console.log(table.toString());
   } catch (error) {
     console.error('Error fetching roles');
@@ -131,7 +131,7 @@ const viewAllRoles = async () => {
 // function to view all employees
 const viewAllEmployees = async () => {
   try {
-    // Join the employee table with the role and department tables to get the department name and salary
+    // join employee table with role and department tables to get the department name and salary
     const result: QueryResult = await pool.query(`
       SELECT 
         e.id, 
@@ -148,17 +148,17 @@ const viewAllEmployees = async () => {
       LEFT JOIN employee m ON e.manager_id = m.id
     `);
     
-    // Define headers for the table
+    // headers for the table
     const headers = ['ID', 'First Name', 'Last Name', 'Role', 'Salary', 'Department', 'Manager'];
 
-    // Create a table instance and add rows
+    // table instance with add rows
     const table = new Table({ head: headers });
     result.rows.forEach(({ id, first_name, last_name, role, salary, department, manager_first_name, manager_last_name }) => {
       const managerName = manager_first_name && manager_last_name ? `${manager_first_name} ${manager_last_name}` : 'None';
       table.push([id, first_name, last_name, role, salary, department, managerName]);
     });
 
-    // Display the table
+    // display the table
     console.log(table.toString());
   } catch (error) {
     console.error('Error fetching employees');
