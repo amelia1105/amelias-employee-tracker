@@ -67,7 +67,7 @@ This project was completed as part of the Module 10 Challenge for the Rutgers Un
 
 ## Walkthrough Video
 
-link to video here
+https://drive.google.com/file/d/1SwLziyc8iUMzMcnuX3CQ8pOuyfGYL8qG/view
 
 ## Credits
 
