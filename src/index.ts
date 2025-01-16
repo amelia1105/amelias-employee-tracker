@@ -151,7 +151,7 @@ const viewAllEmployees = async () => {
     // headers for the table
     const headers = ['ID', 'First Name', 'Last Name', 'Role', 'Salary', 'Department', 'Manager'];
 
-    // table instance with add rows
+    // table instance with rows
     const table = new Table({ head: headers });
     result.rows.forEach(({ id, first_name, last_name, role, salary, department, manager_first_name, manager_last_name }) => {
       const managerName = manager_first_name && manager_last_name ? `${manager_first_name} ${manager_last_name}` : 'None';
@@ -353,7 +353,19 @@ const updateEmployeeManager = async () => {
 
 // function to view employees by manager
 const viewEmployeesByManager = async () => {
-  const managers: QueryResult = await pool.query('SELECT id, first_name, last_name FROM employee');
+  // get a list of managers who manage at least one employee
+  const managers: QueryResult = await pool.query(`
+    SELECT DISTINCT e.id, e.first_name, e.last_name
+    FROM employee e
+    WHERE e.id IN (SELECT DISTINCT manager_id FROM employee WHERE manager_id IS NOT NULL)
+  `);
+
+  // check if there are any managers available
+  if (managers.rows.length === 0) {
+    console.log('No managers with employees to manage.');
+    return;
+  }
+
   const managerChoices = managers.rows.map(manager => ({
     name: `${manager.first_name} ${manager.last_name}`,
     value: manager.id
@@ -368,8 +380,18 @@ const viewEmployeesByManager = async () => {
     }
   ]);
 
-  const result: QueryResult = await pool.query('SELECT * FROM employee WHERE manager_id = $1', [answers.manager_id]);
-  console.table(result.rows, ['first_name', 'last_name']);
+  const result: QueryResult = await pool.query('SELECT e.id, e.first_name, e.last_name FROM employee e WHERE e.manager_id = $1', [answers.manager_id]);
+
+  // headers for the table
+  const headers = ['Employee ID', 'First Name', 'Last Name'];
+
+  // display the table
+  const table = new Table({ head: headers });
+  result.rows.forEach(({ id, first_name, last_name }) => {
+    table.push([id, first_name, last_name]);
+  });
+
+  console.log(table.toString());
 };
 
 // function to view employees by department
@@ -389,8 +411,18 @@ const viewEmployeesByDepartment = async () => {
     }
   ]);
 
-  const result: QueryResult = await pool.query('SELECT * FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department = department.id WHERE department = $1', [answers.department_id]);
-  console.table(result.rows, ['first_name', 'last_name']);
+  const result: QueryResult = await pool.query('SELECT e.id, e.first_name, e.last_name FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON r.department = d.id WHERE d.id = $1', [answers.department_id]);
+
+  // headers for the table
+  const headers = ['Employee ID', 'First Name', 'Last Name'];
+
+  // display the table
+  const table = new Table({ head: headers });
+  result.rows.forEach(({ id, first_name, last_name }) => {
+    table.push([id, first_name, last_name]);
+  });
+
+  console.log(table.toString());
 };
 
 // view roles in a department. Not a bonus nor part of the graded criteria, but it helped me understand how to figure out the budget.
@@ -410,8 +442,18 @@ const viewRolesByDepartment = async () => {
     }
   ]);
 
-  const result: QueryResult = await pool.query('SELECT * FROM role WHERE department = $1', [answers.department_id]);
-  console.table(result.rows);
+  const result: QueryResult = await pool.query('SELECT r.title, r.salary FROM role r JOIN department d ON r.department = d.id WHERE d.id = $1', [answers.department_id]);
+
+  // headers for the table
+  const headers = ['Title', 'Salary'];
+
+  // display the table
+  const table = new Table({ head: headers });
+  result.rows.forEach(({ title, salary }) => {
+    table.push([title, salary]);
+  });
+
+  console.log(table.toString());
 };
 
 // function to view the total utilized budget of a department (combined salaries of all employees in that department)
