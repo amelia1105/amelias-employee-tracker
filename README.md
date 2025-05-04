@@ -6,14 +6,18 @@
 
 This project was completed as part of the Module 10 Challenge for the Rutgers University Coding Bootcamp. In this project, a content management system (CMS) was created to allow a company to track employees, roles, and departments. The program is run in the command line and gives the user several options to choose from, including viewing all the departments, roles, and employees, and adding departments, roles, and employees. This application is useful in the real world because it allows employers to update their employee databases easily and quickly. During the development of this project, I learned how to design a command-line application from scratch, how to connect a database to a TypeScript file, and how to edit databases using TypeScript commands. The experience gained from this project could be especially useful in data analysis projects later on.
 
-## Table of Contents (Optional)
+## Table of Contents
 
+- [Walkthrough Video](#walkthrough-video)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Walkthrough Video](#walkthrough-video)
 - [Credits](#credits)
 - [License](#license)
 - [Questions](#questions)
+
+## Walkthrough Video
+
+https://drive.google.com/file/d/1SwLziyc8iUMzMcnuX3CQ8pOuyfGYL8qG/view
 
 ## Installation
 
@@ -65,10 +69,6 @@ This project was completed as part of the Module 10 Challenge for the Rutgers Un
 
     ![output when 'Exit' is selected](./assets/exit.png)
 
-## Walkthrough Video
-
-https://drive.google.com/file/d/1SwLziyc8iUMzMcnuX3CQ8pOuyfGYL8qG/view
-
 ## Credits
 
 Although no starter code was available for this project and the project has been designed from scratch, I used some files from previous projects to get started. The package.json file was originally from the Module 8 Challenge (Rutgers University Coding Bootcamp > RUT-VIRT-FSF-PT-10-2024-U-LOLC-MWTH > Assignments > Module 8 Challenge, https://bootcampspot.instructure.com/courses/6369/assignments/90394?module_item_id=1341044). I made a few additions to this file to be able to implement PostgreSQL databases. The tsconfig.json and connection.ts files are from the Module 10 Mini Project (Rutgers University Coding Bootcamp > RUT-VIRT-FSF-PT-10-2024-U-LOLC-MWTH > Pages > 10. Day 3, https://bootcampspot.instructure.com/courses/6369/pages/10-day-3?module_item_id=1341155). The .gitignore file was created by GitHub, as I created the repo online and added the .gitignore file there. The db folder and files, assets folder and files, .env.example file, and index.ts file were developed by myself with the assistance of GitHub Copilot and ChatGPT.
@@ -79,7 +79,7 @@ GitHub: amelia1105 (https://github.com/amelia1105)
 
 MIT License
 
-Copyright (c) 2025 Amelia Bellanger
+Copyright (c) 2025 Amelia Alvarado
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -101,4 +101,4 @@ SOFTWARE.
 
 ## Questions
 
-For any questions about this project, please contact me by email: aebellanger@yahoo.com
+For any questions about this project, please contact me by email: ameliabalvarado@gmail.com
